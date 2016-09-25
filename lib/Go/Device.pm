@@ -162,4 +162,4 @@ sub printConnectionStatus {
     printWithColor("\b\b" . $statusOutput{$status}, $status);
 }
 
-1;
+1; # Last line is required to eval true. Yay Perl.
