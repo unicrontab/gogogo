@@ -3,11 +3,11 @@ A terminal based ssh login manager/automator.
 
 #### Getting Started with go:
 
-** Set PERLLIB directory **
-`export PERLLIB=<directory of gogogo>/lib`
+** Set PERLLIB variable **
+Configure bash_profile to set everytime you login
 
-example: `export PERLLIB=/Users/mwilson/gogogo/lib`
-
+`echo "export PERLLIB=<directory of gogogo>/lib" >> ~/.bash_profile"`
+example: `echo "export PERLLIB=/Users/mwilson/gogogo/lib" >> ~/.bash_profile`
 
 To use go with just `go` you will need to symlink **go.pl** to **go** and put the symlink in a directory that exists in your $PATH environment variable.
 `ln -s $PWD/go.pl /usr/local/bin/go`
