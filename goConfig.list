@@ -1,0 +1,7 @@
+userDataLocation|./userData
+deviceDataLocation|deviceData
+passwordFileLocation|.goPass
+deviceFileLocation|goDevices.list
+privateKeyLocation|private.pem
+publicKeyLocation|public.pem
+privateKeySize|4096
