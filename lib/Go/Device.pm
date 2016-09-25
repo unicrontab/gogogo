@@ -150,6 +150,9 @@ sub connectToDevice {
     } 
 }
 
+# printConnectionStatus($status)
+#
+# Will erase and reprint the status based on $status  
 sub printConnectionStatus {
     my $status = shift;
     my %statusOutput;
