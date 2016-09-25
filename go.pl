@@ -7,6 +7,10 @@ use Go::Menu;
 use Go::File;
 use Go::Term;
 use Go::Device;
+use Go::Update;
+
+# check for updates
+Go::Update::checkForUpdates();
 
 # check if the config directories exist, create them if they don't
 Go::File::ensureDataDirectoriesExist();
