@@ -158,7 +158,3 @@ sub printConnectionStatus {
     $statusOutput{'red'} = ":(";
     printWithColor("\b\b" . $statusOutput{$status}, $status);
 }
-
-
-1; # Required. Yay perl.
-# The last expression in a 'required' file must evaluate to true

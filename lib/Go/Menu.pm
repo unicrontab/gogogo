@@ -244,5 +244,3 @@ sub getValidatedInput {
     chomp($input);
     return $input;
 }
-
-1; # yay perl.

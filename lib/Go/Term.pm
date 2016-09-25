@@ -42,7 +42,3 @@ sub error {
     my $errorMessage = shift;
     printWithColor($errorMessage,"red");
 }
-
-
-1; # Required. Yay perl.
-# The last expression in a 'required' file must evaluate to true
