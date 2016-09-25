@@ -1,16 +1,24 @@
 #!/usr/bin/perl
+
+use Cwd qw(abs_path);
+my $currentFile = abs_path($0);
+my $mainDirectory = `pwd`;
+if ($currentFile =~ m/^(\S+)\/go\.pl/){
+    $mainDirectory = $1;
+};
+use lib "$mainDirectory/lib";
 use strict;
 use warnings;
 
-use lib "./lib";
 use Go::Menu;
 use Go::File;
 use Go::Term;
 use Go::Device;
 use Go::Update;
+use Go::Config;
+my %config = Go::Config::getConfig();
 
-# check for updates
-Go::Update::checkForUpdates();
+
 
 # check if the config directories exist, create them if they don't
 Go::File::ensureDataDirectoriesExist();
@@ -25,6 +33,10 @@ my $numberOfMatchedDevices = scalar @initiallyMatchedDevices;
 
 # just type 'go'
 if ($numberOfSearchTerms == 0) {
+	if ($config{'checkForUpdates'} eq "yes"){
+		printWithColor("Checking for updates...\n", "yellow");
+		Go::Update::checkForUpdates();
+	}
 	Go::Menu::printMainMenu();
 
 # search terms match *ONE* device

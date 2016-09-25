@@ -6,10 +6,16 @@ use warnings;
 use Go::Device;
 use Go::Config;
 use Go::Term;
+use Cwd qw(abs_path);
+my $currentFile = abs_path($0);
+my $mainDir;
+if ($currentFile =~ m/^(\S+)\/go\.pl/){
+    $mainDir = $1;
+};
 
 my %config =  Go::Config::getConfig();
 
-my $userDataLocation = $config{'userDataLocation'};
+my $userDataLocation = "$mainDir/$config{'userDataLocation'}";
 my $deviceDataLocation = "$userDataLocation/$config{'deviceDataLocation'}";
 
 my $passwordFileLocation = "$userDataLocation/$config{'passwordFileLocation'}";
