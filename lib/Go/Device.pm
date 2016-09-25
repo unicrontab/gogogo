@@ -158,3 +158,5 @@ sub printConnectionStatus {
     $statusOutput{'red'} = ":(";
     printWithColor("\b\b" . $statusOutput{$status}, $status);
 }
+
+1;

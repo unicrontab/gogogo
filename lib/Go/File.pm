@@ -261,3 +261,4 @@ sub ensureDataDirectoriesExist {
         `mkdir -p $deviceDataLocation`;
     }
 }
+
