@@ -41,6 +41,8 @@ sub checkForUpdates {
             }
             
         } elsif ($gitStatusOutput =~ m/Your branch is up-to-date/) {
+        } elsif ($gitStatusOutput =~ m/HEAD detached at (\S+)/) {
+            error("You are not on a branch. You're on commit: $1 \n");
         } elsif ($gitStatusOutput =~ m/Changes not staged for commit/) {
             error("Please commit or discard your local changes!\n");
         } else {
