@@ -34,4 +34,4 @@ The following are available to configure:
 * deviceFileLocation - the filename of the device list
 * privateKeyLocation - the filename of the private key
 * publicKeyLocation - the filename of the public key
-* privateKeySize - the keysize of the private key
+* privateKeySize - the key size of the private key
