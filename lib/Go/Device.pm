@@ -150,6 +150,9 @@ sub connectToDevice {
     } 
 }
 
+# printConnectionStatus($status)
+#
+# Will erase and reprint the status based on $status  
 sub printConnectionStatus {
     my $status = shift;
     my %statusOutput;
@@ -159,6 +162,4 @@ sub printConnectionStatus {
     printWithColor("\b\b" . $statusOutput{$status}, $status);
 }
 
-
-1; # Required. Yay perl.
-# The last expression in a 'required' file must evaluate to true
+1; # Last line is required to eval true. Yay Perl.
