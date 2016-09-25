@@ -6,6 +6,7 @@ use warnings;
 use Go::File;
 use Go::Device;
 use Go::Term;
+use Go::Update;
 
 # printCertificateWizard()
 
@@ -196,7 +197,7 @@ sub printMenuHeader {
 }
 
 sub printMenuBar {
-    printWithColor("-------------------------------------\n","darkgray");
+    printWithColor("--------------------------------------\n","darkgray");
 }
 
 sub printMenuOption {
@@ -207,7 +208,10 @@ sub printMenuOption {
 }
 
 sub printMenuLogo {
-    printWithColor("\t    ,---.,---.  \n","green"); 
+
+    print("\e[1;2m\e[1;39m");
+    printf("%38s\n", "v " . Go::Update::getVersion());
+    printWithColor("\n\t    ,---.,---.  \n","green"); 
     printWithColor("\t    |   ||   |  \n","yellow");    
     printWithColor("\t    `---|`---'  \n","blue");  
     printWithColor("\t    `---'     \n","lightred");    

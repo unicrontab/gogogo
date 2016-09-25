@@ -4,8 +4,14 @@ $VERSION = v0.0.1;
 use strict;
 use warnings;
 use Go::File;
+use Cwd qw(abs_path);
+my $currentFile = abs_path($0);
+my $mainDirectory;
+if ($currentFile =~ m/^(\S+)\/go\.pl/){
+    $mainDirectory = $1;
+};
 
-my $configFileLocation = ("./goConfig.list");
+my $configFileLocation = $mainDirectory . "/goConfig.list";
 
 # getConfig()
 #
