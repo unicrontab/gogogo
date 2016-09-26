@@ -72,7 +72,7 @@ sub getDeviceInfo {
     my $deviceLine = shift;
     my %deviceToReturn;
 
-    if ($deviceLine=~m/(\S+)\|(\d+\.\d+\.\d+\.\d+)\|(\w+)\|(\d+)\|(\S+)/){
+    if ($deviceLine=~m/(\S+)\|(\d+\.\d+\.\d+\.\d+)\|(\S+)\|(\d+)\|(\S+)/){
         $deviceToReturn{'name'} = $1;
         $deviceToReturn{'ip'} = $2;
         $deviceToReturn{'username'} = $3;

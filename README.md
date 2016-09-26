@@ -28,7 +28,7 @@ The file is formatted: \<key>|\<value>
 
 The following are available to configure:
 
-######**Changing directory locations might not work as expected :/**
+###### **Changing directory locations might not work as expected :/**
 * **passwordProtectPrivateKey** - Will make you enter a passphrase every time we decrypt a password (or access the private key)
 * **userDataLocation** - directory name containing all of the data files
 * **deviceDataLocation** - directory name containing all the encrypted password files

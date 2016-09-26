@@ -188,7 +188,7 @@ sub printAddDeviceMenu {
     printMenuHeader("Add a device");
 
     my $deviceStringRegex = qr/^[\w,\-]+$/;
-    $deviceToAdd{'name'} = getValidatedInput("Device name", $deviceStringRegex);
+    $deviceToAdd{'name'} = getValidatedInput("Device label", $deviceStringRegex);
 
     my $deviceIpRegex = qr/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
     $deviceToAdd{'ip'} = getValidatedInput("Device IP", $deviceIpRegex);
@@ -202,7 +202,8 @@ sub printAddDeviceMenu {
     my $authModeRegex = qr/^[1,2]/;
     $deviceToAdd{'authMode'} = getValidatedInput("Device Auth Mode",$authModeRegex);
 
-    $deviceToAdd{'username'} = getValidatedInput("Device username", $deviceStringRegex);
+    my $usernameStringRegex = qr/^[\S+]+$/;
+    $deviceToAdd{'username'} = getValidatedInput("Device username", $usernameStringRegex);
     
     if ($deviceToAdd{'authMode'} == 1){
         system "stty -echo";
