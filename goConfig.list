@@ -1,4 +1,4 @@
-passwordProtectPrivateKey|no
+passwordProtectPrivateKey|yes
 userDataLocation|userData
 deviceDataLocation|deviceData
 passwordFileLocation|.goPass

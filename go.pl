@@ -1,15 +1,20 @@
 #!/usr/bin/perl
-
-use Cwd qw(abs_path);
-my $currentFile = abs_path($0);
-my $mainDirectory = `pwd`;
-if ($currentFile =~ m/^(\S+)\/go\.pl/){
-    $mainDirectory = $1;
-};
-use lib "$mainDirectory/lib";
 use strict;
 use warnings;
 
+use Cwd qw(abs_path);
+my $currentFile;
+my $mainDirectory;
+
+# Find and add the library to @INC
+BEGIN {
+	$currentFile = abs_path($0);
+	if ($currentFile =~ m/^(\S+)\/go\.pl/){
+	    $mainDirectory = $1;
+	};
+}
+
+use lib "$mainDirectory/lib";
 use Go::Menu;
 use Go::File;
 use Go::Term;

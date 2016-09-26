@@ -43,6 +43,18 @@ sub getFileData {
     return  @cleanedContents;
 }
 
+sub writeFileData {
+    my $fileDataRef = shift;
+    my @fileData = @{$fileDataRef};
+    my $fileLocation = shift;
+
+    open(FILE, ">", $fileLocation) or die "Could not open file '$fileLocation' $!";
+    foreach my $line (@fileData) {
+        print FILE $line;
+    }
+    close FILE;
+}
+
 # removeEmptyLines(@dirtyArray)
 #
 # Returns:
@@ -246,7 +258,8 @@ sub checkForPublicKey {
 # Returns:
 # $privateKeyLocation - the file containing the private key
 sub createPrivateKey {
-    my $passwordProtectPrivateKey = $config{'passwordProtectPrivateKey'};
+    my %updatedConfig =  Go::Config::getConfig();
+    my $passwordProtectPrivateKey = $updatedConfig{'passwordProtectPrivateKey'};
     if ($passwordProtectPrivateKey eq "yes"){
         `openssl genrsa -des3 -out $privateKeyLocation $privateKeySize`;
     } else {
@@ -273,4 +286,3 @@ sub ensureDataDirectoriesExist {
         `mkdir -p $deviceDataLocation`;
     }
 }
-

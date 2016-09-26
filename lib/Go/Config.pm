@@ -27,3 +27,21 @@ sub getConfig {
     }
     return %config;
 }
+
+sub writeConfig {
+    my $key = shift;
+    my $value = shift;
+
+    my @configContents = Go::File::getFileData($configFileLocation);
+    my @newConfigContents;
+    foreach my $configLine (@configContents) {
+        if ($configLine =~ m/^(\S+)\|(\S+)/){
+            if ($1 eq $key){
+                push(@newConfigContents,"$key|$value\n");
+            } else {
+                push(@newConfigContents, $configLine);
+            }
+        } 
+    }
+    Go::File::writeFileData(\@newConfigContents, $configFileLocation);
+}

@@ -11,14 +11,34 @@ use Go::Update;
 # printCertificateWizard()
 
 sub printCertificateWizard {
+    print `clear`;
     printMenuBar();
     printMenuLogo();
-    printWithColor("\e[7;31mSetup Instructions:\n", "red");
-    printWithColor("First, we need to create your certificates.\n", "red");
-    printWithColor("Press \e[7;31mEnter\e[0;39m to create your private/public key.", "white");
+    printMenuHeader("Setup Instructions");
+    printWithColor("Let's create your certificates.\n", "yellow");
+    printWithColor("Do you want to protect your private key with a password?","white");
+    printWithColor(" (y/n)\n", "green");
+    printWithColor("(Enter the password everytime you decrypt, but more secure)\n", "darkgray");
+    
+    my $confirmInput = <STDIN>;
+    while($confirmInput!~m/^[y,n]/){
+        printWithColor("Invalid input: $confirmInput\n","red");
+        printWithColor("(y/n) ", "white");
+        $confirmInput=<STDIN>;
+    }
+    chomp($confirmInput);
+
+    if ($confirmInput eq "y") {
+        Go::Config::writeConfig("passwordProtectPrivateKey","yes");
+    } else {
+        Go::Config::writeConfig("passwordProtectPrivateKey","no");
+    }
+
+    printWithColor("Press \e[7;32mEnter\e[0;39m to create your private/public key.", "white");
     <STDIN>;
     my $privateKeyLocation = Go::File::createPrivateKey();
-    printWithColor("\nPrivate key generated: $privateKeyLocation\n","green");
+    printWithColor("Private key generated: $privateKeyLocation\n","green");
+    printWithColor("Creating a public key...\n", "white");
     my $publicKeyLocation = Go::File::createPublicKey();
     printWithColor("Public key generated: $publicKeyLocation\n\n","green");
     
@@ -57,13 +77,15 @@ sub printMainMenuHeader {
     
     if (scalar(@deviceList) == 0){
 
-        printWithColor("\e[7;31mSetup Instructions:\n", "red");
-        printWithColor("Next, you need to add a device. \e[7;31mEnter '1'.\n", "red");
+        printMenuHeader("Setup Instructions");
+        printWithColor("You need to add a device. Enter \e[7;32m1\n", "yellow");
         
     } else {
 
-        printWithColor("To use this script, type 'go <searchTerm>'.\n", "white");
-        printWithColor("Supports ∞ search terms. ^c to exit.\n", "white");
+        printWithColor("Use: type '","darkgray");
+        printWithColor("go <searchTerm>","white");
+        printWithColor("'.\n", "darkgray");
+        printWithColor("Supports ∞ search terms. ^c to exit.\n", "darkgray");
     }
 
     printMenuBar(); 
@@ -101,7 +123,7 @@ sub printDeviceSelectionMenu {
     my @devicesToPrint = @{$devicesToPrintRef};
     my $numberOfDevices = scalar(@devicesToPrint);
 
-    `clear`;
+    print `clear`;
     if ($numberOfDevices <= 0) {
         printMenuBar();
         printWithColor("You need to add a device!\n", "red");
@@ -172,7 +194,7 @@ sub printAddDeviceMenu {
     my $confirmInput = <STDIN>;
     while($confirmInput!~m/^[y,n]/){
         printWithColor("Invalid input. (y/n)\n","red");
-        printWithColor("Is this information correct? (y/n) ", "white");
+        printWithColor("(y/n) ", "white");
         $confirmInput=<STDIN>;
     }
     chomp($confirmInput);
@@ -191,13 +213,39 @@ sub printAddDeviceMenu {
 
 sub printMenuHeader {
     my $title = shift;
-    printWithColor("\n---------[ ", "darkgray");
+    my $titleLength = length $title;
+    my $titleDecorationLength = 4;
+    $titleLength += $titleDecorationLength;
+
+    my @terminalSize = getTerminalSize();
+    my $barLength = ($terminalSize[1] / 2) - ($titleLength / 2);
+
+    my $char = 1;
+    while ($char <= $barLength) {
+        $char++;
+        printWithColor("-","darkgray");
+    }
+
+    printWithColor("[ ", "darkgray");
     printWithColor($title,"cyan");
-    printWithColor(" ]---------\n", "darkgray");
+    printWithColor(" ]", "darkgray");
+
+    $char += $titleLength;
+    while ($char <= $terminalSize[1]) {
+        $char++;
+        printWithColor("-","darkgray");
+    }
+    print "\n";
 }
 
 sub printMenuBar {
-    printWithColor("--------------------------------------\n","darkgray");
+    my @terminalSize = getTerminalSize();
+    my $char = 1;
+    while ($char <= $terminalSize[1]) {
+        $char++;
+        printWithColor("-","darkgray");
+    }
+    print "\n";
 }
 
 sub printMenuOption {
@@ -208,13 +256,20 @@ sub printMenuOption {
 }
 
 sub printMenuLogo {
+    my @terminalSize = getTerminalSize();
+    my $terminalWidth = $terminalSize[1];
 
-    print("\e[1;2m\e[1;39m");
-    printf("%38s\n", "v " . Go::Update::getVersion());
-    printWithColor("\n\t    ,---.,---.  \n","green"); 
-    printWithColor("\t    |   ||   |  \n","yellow");    
-    printWithColor("\t    `---|`---'  \n","blue");  
-    printWithColor("\t    `---'     \n","lightred");    
+    my $version = Go::Update::getVersion();
+    printfWithColor($terminalWidth, "v $version", "darkgray");
+
+    print "\n";
+
+    my $centerLine = int($terminalWidth / 2) + 7;
+
+    printfWithColor($centerLine, ",---. ,---.\n", "green"); 
+    printfWithColor($centerLine, "|   | |   |\n", "yellow");    
+    printfWithColor($centerLine, "`---| `---'\n", "blue");  
+    printfWithColor($centerLine, "`---'      \n","lightred");    
     print "\n";
 }
 
@@ -247,4 +302,14 @@ sub getValidatedInput {
     }
     chomp($input);
     return $input;
+}
+
+sub getTerminalSize {
+    my $sttySizeOutput = `stty size`;
+    my @terminalSize;
+    if ($sttySizeOutput =~ m/(\d+)\ (\d+)/){
+        $terminalSize[0] = $1;
+        $terminalSize[1] = $2;
+    }
+    return @terminalSize;
 }
