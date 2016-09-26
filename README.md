@@ -26,7 +26,7 @@ Then you can just run `go`. Follow the instructions from there.
 	This will bring you to the main menu to add, delete, or list devices.
 
 
-#### Configure go;
+#### Configure go:
 
 The default configuration file is located at: `.goConfig.list`.
 
@@ -34,12 +34,26 @@ The file is formatted: \<key>|\<value>
 
 The following are available to configure:
 
-** Changing directory locations might not work as expected :/ **
-* userDataLocation - directory name containing all of the data files
-* deviceDataLocation - directory name containing all the encrypted password files
-* passwordFileLocation - the filename of the password reference file
-* deviceFileLocation - the filename of the device list
-* privateKeyLocation - the filename of the private key
-* publicKeyLocation - the filename of the public key
-* privateKeySize - the key size of the private key
-* checkForUpdates - (yes/no) if yes, will check for updates every time `go` is run without search terms
+######**Changing directory locations might not work as expected :/**
+* **passwordProtectPrivateKey** - Will make you enter a passphrase every time we decrypt a password (or access the private key)
+* **userDataLocation** - directory name containing all of the data files
+* **deviceDataLocation** - directory name containing all the encrypted password files
+* **passwordFileLocation** - the filename of the password reference file
+* **deviceFileLocation** - the filename of the device list
+* **privateKeyLocation** - the filename of the private key
+* **publicKeyLocation** - the filename of the public key
+* **privateKeySize** - the key size of the private key
+* **checkForUpdates** - (yes/no) if yes, will check for updates every time `go` is run without search terms
+
+###### Default Config:
+```
+passwordProtectPrivateKey|no
+userDataLocation|userData
+deviceDataLocation|deviceData
+passwordFileLocation|.goPass
+deviceFileLocation|goDevices.list
+privateKeyLocation|private.pem
+publicKeyLocation|public.pem
+privateKeySize|4096
+checkForUpdates|yes
+```

@@ -28,7 +28,7 @@ sub printCertificateWizard {
 #
 # Prints the default menu (if you just run 'go')
 sub printMainMenu {
-
+    print `clear`;
     printMainMenuHeader();
     
     printMenuOption(1, "Add a device");
