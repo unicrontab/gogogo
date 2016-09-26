@@ -34,6 +34,7 @@ my $numberOfMatchedDevices = scalar @initiallyMatchedDevices;
 # just type 'go'
 if ($numberOfSearchTerms == 0) {
 	if ($config{'checkForUpdates'} eq "yes"){
+		print `clear`;
 		printWithColor("Checking for updates...\n", "yellow");
 		Go::Update::checkForUpdates();
 	}

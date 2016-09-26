@@ -246,7 +246,13 @@ sub checkForPublicKey {
 # Returns:
 # $privateKeyLocation - the file containing the private key
 sub createPrivateKey {
-    `openssl genrsa -out $privateKeyLocation $privateKeySize`;
+    my $passwordProtectPrivateKey = $config{'passwordProtectPrivateKey'};
+    if ($passwordProtectPrivateKey eq "yes"){
+        `openssl genrsa -des3 -out $privateKeyLocation $privateKeySize`;
+    } else {
+        `openssl genrsa -out $privateKeyLocation $privateKeySize`;
+    }
+
     return $privateKeyLocation;
 }
 
