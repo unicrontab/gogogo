@@ -207,9 +207,22 @@ sub printAddDeviceMenu {
     
     if ($deviceToAdd{'authMode'} == 1){
         system "stty -echo";
+        my $passwordInput;
+        my $passwordInputVerify;
         print "Password: ";
-        chomp(my $passwordInput = <STDIN>);
+        chomp($passwordInput = <STDIN>);
+        print "Verify Password: ";
+        chomp($passwordInputVerify = <STDIN>);
         print "\n";
+
+        while ($passwordInput ne $passwordInputVerify) {
+            error("Passwords did not match!\n");
+            print "Password: ";
+            chomp(my $passwordInput = <STDIN>);
+            print "Verify Password: ";
+            chomp(my $passwordInputVerify = <STDIN>);
+            print "\n";    
+        }
         system "stty echo";
         $deviceToAdd{'passwordId'} = Go::File::createPassword($passwordInput);
     } else {
