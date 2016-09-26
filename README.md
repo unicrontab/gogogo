@@ -3,23 +3,17 @@ A terminal based ssh login manager/automator.
 
 #### Getting Started with go:
 
-** Set PERLLIB variable **
-Configure bash_profile to set everytime you login
-
-`echo "export PERLLIB=<directory of gogogo>/lib" >> ~/.bash_profile"`
-example: `echo "export PERLLIB=/Users/mwilson/gogogo/lib" >> ~/.bash_profile`
-
 To use go with just `go` you will need to symlink **go.pl** to **go** and put the symlink in a directory that exists in your $PATH environment variable.
 `ln -s $PWD/go.pl /usr/local/bin/go`
 
-Then you can just run `go`. Follow the instructions from there.
+Then you can just run `go` to get to the main menu. Follow the instructions from there.
 
 
 #### Using go:
 
 1. Fast Search and Connect: `go nginx prod`
 
-	This will find any devices that match 'nginx' and 'prod' and allow you to select which one you want to SSH into. If only 1 device matches, it will automatically log you in.
+	This will find a filtered list of devices that match 'nginx' and 'prod' and allow you to select which one you want to SSH into. If only 1 device matches, it will automatically log you in.
 
 2. Add/Delete/List Devices: `go`
 
@@ -43,7 +37,7 @@ The following are available to configure:
 * **privateKeyLocation** - the filename of the private key
 * **publicKeyLocation** - the filename of the public key
 * **privateKeySize** - the key size of the private key
-* **checkForUpdates** - (yes/no) if yes, will check for updates every time `go` is run without search terms
+* **checkForUpdates** - (yes/no) if yes, will check for updates every time `go` is run without search terms (not when fast search/connecting)
 
 ###### Default Config:
 ```

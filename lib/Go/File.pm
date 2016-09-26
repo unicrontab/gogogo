@@ -187,7 +187,7 @@ sub encryptPassword {
 
     `echo "$password" | openssl rsautl -encrypt -inkey $publicKeyLocation -pubin -out $deviceDataLocation/$passwordId.dat`;
     if (-e "$deviceDataLocation/$passwordId.dat") {
-        printWithColor("Created $passwordId.dat\n", "green");
+        printWithColor("Created encrypted file $passwordId.dat\n", "darkgray");
         return "$deviceDataLocation/$passwordId.dat";
     } else {
         return 0;

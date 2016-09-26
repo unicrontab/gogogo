@@ -14,11 +14,21 @@ sub printCertificateWizard {
     print `clear`;
     printMenuBar();
     printMenuLogo();
-    printMenuHeader("Setup Instructions");
-    printWithColor("Let's create your certificates.\n", "yellow");
-    printWithColor("Do you want to protect your private key with a password?","white");
-    printWithColor(" (y/n)\n", "green");
-    printWithColor("(Enter the password everytime you decrypt, but more secure)\n", "darkgray");
+    printMenuHeader("Setup Wizard");
+    printWithColor("Welcome. You are at the go setup wizard. After go is configured, you will most likely only use go with search terms.\n\n", "darkgray");
+    printWithColor("To directly connect to a device, match only 1 by using specific terms:\n", "darkgray");
+    printWithColor("go 10.100 dev api\n\n", "white");
+    printWithColor("To print a filtered list of devices/ip's either list devices through the menu ('go'), or match multiple devices with search terms:\n", "darkgray");
+    printWithColor("go dev \n\n", "white");
+    printWithColor("Press ", "white");
+    printWithColor("Enter ", "green");
+    printWithColor("to set up go!","white");
+    <STDIN>;
+
+    printMenuHeader("Certificates");
+    printWithColor("Do you want to password protect your private key? Default 'n'.\n","white");
+    printWithColor("(Enter this password everytime you connect if 'y')\n", "darkgray");
+    printWithColor("(y/n) ", "green");
     
     my $confirmInput = <STDIN>;
     while($confirmInput!~m/^[y,n]/){
@@ -34,14 +44,42 @@ sub printCertificateWizard {
         Go::Config::writeConfig("passwordProtectPrivateKey","no");
     }
 
-    printWithColor("Press \e[7;32mEnter\e[0;39m to create your private/public key.", "white");
+    printWithColor("Press ", "white");
+    printWithColor("Enter ","green"); 
+    printWithColor("to create your private/public key.", "white");
     <STDIN>;
     my $privateKeyLocation = Go::File::createPrivateKey();
     printWithColor("Private key generated: $privateKeyLocation\n","green");
     printWithColor("Creating a public key...\n", "white");
     my $publicKeyLocation = Go::File::createPublicKey();
     printWithColor("Public key generated: $publicKeyLocation\n\n","green");
+
     
+    
+}
+
+sub getUpdatePreferences {
+
+    printMenuHeader("Updates");
+    printWithColor("Would you like to automatically check for updates?\n", "white");
+    printWithColor("Update check only occurs at the menu, not when search/connecting", "darkgray");
+    printWithColor(" (y/n)\n", "green");
+
+    my $confirmInput = <STDIN>;
+    while($confirmInput!~m/^[y,n]/){
+        printWithColor("Invalid input: $confirmInput\n","red");
+        printWithColor("(y/n) ", "green");
+        $confirmInput=<STDIN>;
+    }
+    chomp($confirmInput);
+
+    if ($confirmInput eq "y") {
+        Go::Config::writeConfig("checkForUpdates","yes");
+    } else {
+        Go::Config::writeConfig("checkForUpdates","no");
+    }
+
+
 }
 
 # printMainMenu()
@@ -77,8 +115,9 @@ sub printMainMenuHeader {
     
     if (scalar(@deviceList) == 0){
 
-        printMenuHeader("Setup Instructions");
-        printWithColor("You need to add a device. Enter \e[7;32m1\n", "yellow");
+        printMenuHeader("Devices");
+        printWithColor("You need to add a device. Enter ", "white");
+        printWithColor("1\n", "green");
         
     } else {
 
@@ -155,10 +194,6 @@ sub printAddDeviceMenu {
     my $deviceIpRegex = qr/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
     $deviceToAdd{'ip'} = getValidatedInput("Device IP", $deviceIpRegex);
 
-    $deviceToAdd{'username'} = getValidatedInput("Device username", $deviceStringRegex);
-
-    
-
     printWithColor("Please select ","white");
     printWithColor("1", "green"); 
     printWithColor(" for password, ","white");
@@ -168,6 +203,8 @@ sub printAddDeviceMenu {
     my $authModeRegex = qr/^[1,2]/;
     $deviceToAdd{'authMode'} = getValidatedInput("Device Auth Mode",$authModeRegex);
 
+    $deviceToAdd{'username'} = getValidatedInput("Device username", $deviceStringRegex);
+    
     if ($deviceToAdd{'authMode'} == 1){
         system "stty -echo";
         print "Password: ";
@@ -178,6 +215,8 @@ sub printAddDeviceMenu {
     } else {
         $deviceToAdd{'passwordId'} = 0;
     }
+
+    
     
 
     # TODO: Break into fnuction to print devices

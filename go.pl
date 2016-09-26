@@ -30,6 +30,8 @@ Go::File::ensureDataDirectoriesExist();
 
 if (! Go::File::checkForPrivateKey()) {
 	Go::Menu::printCertificateWizard();
+	Go::Menu::getUpdatePreferences();
+	%config = Go::Config::getConfig();
 }
 
 my $numberOfSearchTerms = scalar @ARGV;
