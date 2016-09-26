@@ -184,6 +184,7 @@ sub encryptPassword {
     if (! -e "$deviceDataLocation/") {
         `mkdir $deviceDataLocation`;
     }
+    $password =~ s/\$/\\\$/g;
 
     `echo "$password" | openssl rsautl -encrypt -inkey $publicKeyLocation -pubin -out $deviceDataLocation/$passwordId.dat`;
     if (-e "$deviceDataLocation/$passwordId.dat") {
