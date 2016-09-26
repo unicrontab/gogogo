@@ -150,7 +150,7 @@ sub connectToDevice {
         $session->interact;
     } else {
         printConnectionStatus("red");
-        error("\nConnection temout when connecting to $deviceName @ $deviceIp\n");
+        error("\nConnection timeout when connecting to $deviceName @ $deviceIp\n");
     } 
 }
 
