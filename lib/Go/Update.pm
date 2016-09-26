@@ -54,6 +54,7 @@ sub checkForUpdates {
 sub updateGo {
     my $gitUpdateOutput = `git --git-dir=$mainDirectory/.git --work-tree=$mainDirectory pull`;
     print $gitUpdateOutput;
+    error("You must restart go to apply the update.\n");
 }
 
 sub getVersion {
