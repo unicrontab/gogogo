@@ -5,4 +5,4 @@ deviceFileLocation|goDevices.list
 privateKeyLocation|private.pem
 publicKeyLocation|public.pem
 privateKeySize|4096
-checkForUpdates|no
+checkForUpdates|yes
