@@ -21,10 +21,14 @@ sub printDeviceDetails {
     printWithColor("$device{'ip'}\n", "green");
     printWithColor("Device username: ", "darkgray");
     printWithColor("$device{'username'}\n", "green");
-    printWithColor("Device password id: ", "darkgray");
-    printWithColor("$device{'passwordId'}\n", "green");
     printWithColor("Device auth mode is: ", "darkgray");
-    printWithColor("$device{'authMode'}\n", "green");
+    if ($device{'authMode'} == 1){
+        printWithColor("password\n", "green");
+        printWithColor("Device password id: ", "darkgray");
+        printWithColor("$device{'passwordId'}\n", "green");
+    } elsif ($device{'authMode'} == 2) {
+        printWithColor("SSH Key\n", "green");
+    }
 }
 
 # getFilteredDeviceList(@deviceList, @searchTermList);
