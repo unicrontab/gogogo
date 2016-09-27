@@ -86,15 +86,29 @@ sub printUpdateWizard {
 
     printWithColor("What update branch would you like receive updates from?\n", "white");
     printMenuOption(1, "master - Stable");
-    printMenuOption(2, "develop - new features / unstable");
+    printMenuOption(2, "develop - New features / Unstable");
 
+    my $branchSwitchOutput;
     my $menuSelectionRegex = qr/^[1-2]$/;
     my $selection = getValidatedInput("Selection", $menuSelectionRegex);
     if ($selection == 1) { 
-        Go::Update::switchBranch("master");
+        $branchSwitchOutput = Go::Update::switchBranch("master");
+
     } elsif ($selection == 2){
-        Go::Update::switchBranch("develop");
+        $branchSwitchOutput = Go::Update::switchBranch("develop");
+    }
+
+    if ($branchSwitchOutput =~ m/^Switched/){
+        print `clear`;
+        printMenuBar();
+        printWithColor($branchSwitchOutput, "white");
         error("Branch change requires restart of go.\n");
+    } elsif ($branchSwitchOutput =~ m/^error/){
+        print `clear`;
+        printMenuBar();
+        error($branchSwitchOutput);
+    } elsif ($branchSwitchOutput =~ m/^Already on/){
+        print `clear`;
     }
 
 }
@@ -127,8 +141,6 @@ sub printMainMenu {
 
     } elsif ($selection == 4) {
         printUpdateWizard();
-        print `clear`;
-
         printMainMenu();
     }
 }

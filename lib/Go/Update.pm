@@ -26,9 +26,7 @@ sub checkForUpdates {
     if ($fetchOutput =~ m/Could not resolve host: (\S+)/) {
         error("Could not resolve $1\n");
     }  else {
-
-
-    my $gitStatusOutput = `git $gitArguments status`;
+        my $gitStatusOutput = `git $gitArguments status`;
 
         if ($gitStatusOutput =~ m/Your branch is behind/g) {
             printWithColor("Update available! Would you like to update? (y/n) ", "green");
@@ -42,7 +40,6 @@ sub checkForUpdates {
             if ($confirmInput =~ m/^y$/){
                 updateGo();
             }
-            
         } elsif ($gitStatusOutput =~ m/Your branch is up-to-date/) {
         } elsif ($gitStatusOutput =~ m/HEAD detached at (\S+)/) {
             error("You are not on a branch. You're on commit: $1 \n");
@@ -74,5 +71,6 @@ sub getBranch {
 
 sub switchBranch {
     my $newBranch = shift;
-    my $branchSwitch = `git $gitArguments checkout $newBranch`;
+    my $branchSwitch = `git $gitArguments checkout $newBranch 2>&1`;
+    return $branchSwitch;
 };
