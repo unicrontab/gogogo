@@ -193,6 +193,16 @@ sub printVersionInfo {
     my $version = Go::Update::getVersion();
     my $branch = Go::Update::getBranch();
     printfWithColor($terminalWidth, "v $version ($branch)", "darkgray");
+
+    if ($branch eq "develop") {
+        my $remote = Go::Update::getRemote();
+        if ($remote =~ m/(\S+\/\/(\S+\@)?(\S+.com))\S+\ \(\S+\)/g){
+            $remote = $3;
+        }
+        printfWithColor($terminalWidth, "$remote", "darkgray");
+    }
+
+
     print "\n";
 }
 

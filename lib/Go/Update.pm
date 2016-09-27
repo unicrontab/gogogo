@@ -73,4 +73,9 @@ sub switchBranch {
     my $newBranch = shift;
     my $branchSwitch = `git $gitArguments checkout $newBranch 2>&1`;
     return $branchSwitch;
-};
+}
+
+sub getRemote {
+    my $remote = `git $gitArguments remote -v | grep fetch | grep origin`;
+    return $remote;
+}
