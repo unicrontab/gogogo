@@ -203,6 +203,7 @@ sub printDeleteDeviceMenu {
 
     Go::File::deleteDevice($deviceToDelete{'name'});
 
+    print `clear`;
     printWithColor("Device ", "white");
     printWithColor("$deviceToDelete{'name'} ", "green");
     printWithColor("@ $deviceToDelete{'ip'}", "darkgray");
@@ -312,18 +313,19 @@ sub printAddDeviceMenu {
     my $choice = confirmChoice();
     if ($choice eq "y"){
         if (Go::File::createDevice(\%deviceToAdd)) {
-            printWithColor("Device Added! Hit enter to continue.", "green");
-            <STDIN>;
+            print `clear`;
+            printWithColor("Device ", "white");
+            printWithColor("$deviceToAdd{'name'} ", "green");
+            printWithColor("added.\n");
         } else {
-            error("Failed to add device! Hit enter to continue.", "red");
-            <STDIN>;        
+            print `clear`;
+            error("Failed to add $deviceToAdd{'name'}.\n");    
         }
     } elsif ($choice eq "n") {
-        error("Did not create the device. Hit enter to continue.");
-        <STDIN>
+        print `clear`;
+        error("Did not create $deviceToAdd{'name'}.\n");
     }
     
-    print `clear`;
     printMainMenu();
     exit;
 }
