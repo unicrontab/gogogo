@@ -8,12 +8,26 @@ use Go::Device;
 use Go::Term;
 use Go::Update;
 
-# printCertificateWizard()
 
-sub printCertificateWizard {
+# printSetupWizard()
+#
+# Prints the SetupWizard
+sub printSetupWizard {
     print `clear`;
     printMenuBar();
     printMenuLogo();
+
+    printSetupWizardIntro();
+    printCertificateWizard();
+    printUpdateWizard();
+
+    print `clear`;
+}
+
+# printSetupWizardIntro()
+#
+# prints the intro text for the SetupWizard
+sub printSetupWizardIntro {
     printMenuHeader("Setup Wizard");
     printWithColor("Welcome. You are at the go setup wizard. After go is configured, you will most likely only use go with search terms.\n\n", "darkgray");
     printWithColor("To directly connect to a device, match only 1 by using specific terms:\n", "darkgray");
@@ -24,21 +38,19 @@ sub printCertificateWizard {
     printWithColor("Enter ", "green");
     printWithColor("to set up go!","white");
     <STDIN>;
+}
 
+# printCertificateWizard()
+#
+#
+sub printCertificateWizard {
     printMenuHeader("Certificates");
     printWithColor("Do you want to password protect your private key? Default 'n'.\n","white");
     printWithColor("(Enter this password everytime you connect if 'y')\n", "darkgray");
     printWithColor("(y/n) ", "green");
     
-    my $confirmInput = <STDIN>;
-    while($confirmInput!~m/^[y,n]/){
-        printWithColor("Invalid input: $confirmInput\n","red");
-        printWithColor("(y/n) ", "white");
-        $confirmInput=<STDIN>;
-    }
-    chomp($confirmInput);
-
-    if ($confirmInput eq "y") {
+    my $choice = confirmChoice();
+    if ($choice eq "y") {
         Go::Config::writeConfig("passwordProtectPrivateKey","yes");
     } else {
         Go::Config::writeConfig("passwordProtectPrivateKey","no");
@@ -46,39 +58,58 @@ sub printCertificateWizard {
 
     printWithColor("Press ", "white");
     printWithColor("Enter ","green"); 
-    printWithColor("to create your private/public key.", "white");
+    printWithColor("to create your private/public key ", "white");
     <STDIN>;
+
     my $privateKeyLocation = Go::File::createPrivateKey();
     printWithColor("Private key generated: $privateKeyLocation\n","green");
-    printWithColor("Creating a public key...\n", "white");
+    printWithColor("Creating public key...\n", "white");
     my $publicKeyLocation = Go::File::createPublicKey();
     printWithColor("Public key generated: $publicKeyLocation\n\n","green");
-
-    
-    
 }
 
-sub getUpdatePreferences {
-
+# print
+#
+#
+sub printUpdateWizard {
     printMenuHeader("Updates");
     printWithColor("Would you like to automatically check for updates?\n", "white");
     printWithColor("Update check only occurs at the menu, not when search/connecting", "darkgray");
-    printWithColor(" (y/n)\n", "green");
+    printWithColor("\n(y/n) ", "green");
 
-    my $confirmInput = <STDIN>;
-    while($confirmInput!~m/^[y,n]/){
-        printWithColor("Invalid input: $confirmInput\n","red");
-        printWithColor("(y/n) ", "green");
-        $confirmInput=<STDIN>;
-    }
-    chomp($confirmInput);
-
-    if ($confirmInput eq "y") {
+    my $choice = confirmChoice();
+    if ($choice eq "y") {
         Go::Config::writeConfig("checkForUpdates","yes");
     } else {
         Go::Config::writeConfig("checkForUpdates","no");
     }
 
+    printWithColor("What update branch would you like receive updates from?\n", "white");
+    printMenuOption(1, "master - Stable");
+    printMenuOption(2, "develop - New features / Unstable");
+
+    my $branchSwitchOutput;
+    my $menuSelectionRegex = qr/^[1-2]$/;
+    my $selection = getValidatedInput("Selection", $menuSelectionRegex);
+    if ($selection == 1) { 
+        $branchSwitchOutput = Go::Update::switchBranch("master");
+
+    } elsif ($selection == 2){
+        $branchSwitchOutput = Go::Update::switchBranch("develop");
+    }
+
+    if ($branchSwitchOutput =~ m/^Switched/){
+        print `clear`;
+        printMenuBar();
+        printWithColor($branchSwitchOutput, "white");
+        error("Branch change requires restart of go.\n");
+    } elsif ($branchSwitchOutput =~ m/^error/){
+        print `clear`;
+        printMenuBar();
+        error($branchSwitchOutput);
+    } elsif ($branchSwitchOutput =~ m/^Already on/){
+        print `clear`;
+    }
 
 }
 
@@ -87,12 +118,14 @@ sub getUpdatePreferences {
 # Prints the default menu (if you just run 'go')
 sub printMainMenu {
     printMainMenuHeader();
-    
+
     printMenuOption(1, "Add a device");
     printMenuOption(2, "Delete a device");
     printMenuOption(3, "List all devices");
+    printMenuOption(4, "Configure updates");
     
-    my $selection = getSelectionInput();
+    my $menuSelectionRegex = qr/^[1-4]$/;
+    my $selection = getValidatedInput("Selection", $menuSelectionRegex);
 
     if ($selection == 1) { 
         printAddDeviceMenu(); 
@@ -101,61 +134,85 @@ sub printMainMenu {
         printDeleteDeviceMenu();
 
     } elsif ($selection == 3) {
-        printDeviceList();
+        my @allDevices = Go::File::getDevices([]);
+        my %device = printDeviceSelectionMenu(\@allDevices);
 
-    };
+        Go::Device::connectToDevice(\%device);
+
+    } elsif ($selection == 4) {
+        printUpdateWizard();
+        printMainMenu();
+    }
 }
 
+# printMainMenuHeader()
 sub printMainMenuHeader {
-    my @deviceList = Go::File::getDevices([]);
-    
     printMenuBar();
-    printMenuLogo();
-    
-    if (scalar(@deviceList) == 0){
 
+    printVersionInfo();
+    printMenuLogo();
+    printMainMenuHeaderHelperText();
+
+    printMenuBar(); 
+}
+
+# printMainMenuHeaderHelperText()
+sub printMainMenuHeaderHelperText {
+    my @deviceList = Go::File::getDevices([]);
+    if (scalar(@deviceList) == 0){
         printMenuHeader("Devices");
         printWithColor("You need to add a device. Enter ", "white");
         printWithColor("1\n", "green");
         
     } else {
-
         printWithColor("Use: type '","darkgray");
         printWithColor("go <searchTerm>","white");
         printWithColor("'.\n", "darkgray");
         printWithColor("Supports ∞ search terms. ^c to exit.\n", "darkgray");
     }
-
-    printMenuBar(); 
 }
 
-sub printDeviceList {
-    my @deviceList = Go::File::getDevices([]);
+# printMenuLogo()
+sub printMenuLogo {
+    my @terminalSize = getTerminalSize();
+    my $terminalWidth = $terminalSize[1];
+    my $centerLine = int($terminalWidth / 2) + 7;
 
-    printDeviceSelectionMenu(\@deviceList);
-    my $selectedDevice = $deviceList[getSelectionInput() - 1];
-    my %device = Go::Device::getDeviceInfo($selectedDevice);
-    Go::Device::connectToDevice(\%device);
+    printfWithColor($centerLine, ",---. ,---.\n", "green"); 
+    printfWithColor($centerLine, "|   | |   |\n", "yellow");    
+    printfWithColor($centerLine, "`---| `---'\n", "blue");  
+    printfWithColor($centerLine, "`---'      \n", "lightred");    
+
+    print "\n";
 }
 
+# printVersionInfo()
+sub printVersionInfo {
+    my @terminalSize = getTerminalSize();
+    my $terminalWidth = $terminalSize[1];
+    my $version = Go::Update::getVersion();
+    my $branch = Go::Update::getBranch();
+    printfWithColor($terminalWidth, "v $version ($branch)", "darkgray");
+    print "\n";
+}
+
+# printDeleteDeviceMenu()
 sub printDeleteDeviceMenu {
     my @deviceList = Go::File::getDevices([]);
+    my %deviceToDelete = printDeviceSelectionMenu(\@deviceList);
 
-    printDeviceSelectionMenu(\@deviceList);
-    my $deviceLineToDelete = $deviceList[getSelectionInput() - 1];
-    my %deviceToDelete = Go::Device::getDeviceInfo($deviceLineToDelete);
     Go::File::deleteDevice($deviceToDelete{'name'});
+
+    print `clear`;
     printWithColor("Device ", "white");
     printWithColor("$deviceToDelete{'name'} ", "green");
     printWithColor("@ $deviceToDelete{'ip'}", "darkgray");
     printWithColor(" deleted.\n", "white");
+
     printMainMenu();
 }
 
 # printDeviceSelectionMenu(@devices);
-#
-# prints a selection menu from an array of devices
-
 sub printDeviceSelectionMenu {
     my $devicesToPrintRef = shift;
     my @devicesToPrint = @{$devicesToPrintRef};
@@ -176,12 +233,52 @@ sub printDeviceSelectionMenu {
             printWithColor("$deviceInfo{'name'} ", "green");
             printWithColor("\@ ","darkgray");
             printWithColor("$deviceInfo{'ip'} \n","lightgray");
-            # print (" $count - $deviceInfo{'name'} - $deviceInfo{'ip'} \n");
         }
         printMenuBar();
     }
+
+    my $deviceListLength = $numberOfDevices + 1;
+    my $deviceSelectionRegex = qr/^[1-$deviceListLength]$/;
+    my $selectedDevice = $devicesToPrint[getValidatedInput("Selection", $deviceSelectionRegex) - 1];
+    my %device = Go::Device::getDeviceInfo($selectedDevice);
+
+    return %device;
 }
 
+# printPasswordInput()
+# 
+# Returns:
+# $password
+sub printPasswordInput {
+    my @passwords = getPasswordInput();
+    while ($passwords[0] ne $passwords[1]) {
+        printWithColor("Passwords did not match.\n", "red");
+        @passwords = getPasswordInput();   
+    }
+    return $passwords[0];
+}
+
+# getPasswordInput
+# 
+# Returns:
+# $passwords - array with the two input passwords
+sub getPasswordInput {
+    my @passwords = ( "password", "badPassword" );
+
+    print "Password: ";
+
+    system "stty -echo";
+    chomp($passwords[0] = <STDIN>);
+    print "\nVerify Password: ";
+    chomp($passwords[1] = <STDIN>);
+    system "stty echo";
+
+    print "\n";
+
+    return @passwords;
+}
+
+# printAddDeviceMenu()
 sub printAddDeviceMenu {
     my %deviceToAdd;
 
@@ -193,76 +290,56 @@ sub printAddDeviceMenu {
     my $deviceIpRegex = qr/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
     $deviceToAdd{'ip'} = getValidatedInput("Device IP", $deviceIpRegex);
 
-    printWithColor("Please select ","white");
-    printWithColor("1", "green"); 
-    printWithColor(" for password, ","white");
-    printWithColor("2", "green");
-    printWithColor(" for an existing SSH key.\n","white");
-
-    my $authModeRegex = qr/^[1,2]/;
-    $deviceToAdd{'authMode'} = getValidatedInput("Device Auth Mode",$authModeRegex);
+    printAuthModeSelectionText();
+    my $authModeRegex = qr/^[1,2]$/;
+    $deviceToAdd{'authMode'} = getValidatedInput("Device Auth Mode", $authModeRegex);
 
     my $usernameStringRegex = qr/^[\S+]+$/;
     $deviceToAdd{'username'} = getValidatedInput("Device username", $usernameStringRegex);
     
     if ($deviceToAdd{'authMode'} == 1){
-        system "stty -echo";
-        my $passwordInput;
-        my $passwordInputVerify;
-        print "Password: ";
-        chomp($passwordInput = <STDIN>);
-        print "Verify Password: ";
-        chomp($passwordInputVerify = <STDIN>);
-        print "\n";
+        my $password = printPasswordInput;
+        $deviceToAdd{'passwordId'} = Go::File::createPassword($password);
 
-        while ($passwordInput ne $passwordInputVerify) {
-            error("Passwords did not match!\n");
-            print "Password: ";
-            chomp(my $passwordInput = <STDIN>);
-            print "Verify Password: ";
-            chomp(my $passwordInputVerify = <STDIN>);
-            print "\n";    
-        }
-        system "stty echo";
-        $deviceToAdd{'passwordId'} = Go::File::createPassword($passwordInput);
-    } else {
+    } elsif ($deviceToAdd{'authMode'} == 2) {
         $deviceToAdd{'passwordId'} = 0;
     }
 
-    
-    
-
-    # TODO: Break into fnuction to print devices
     printWithColor("Please confirm the device settings:\n","white");
     Go::Device::printDeviceDetails(\%deviceToAdd);
 
-    # TODO: Break into confirm function
-    printWithColor("Is this information correct? (", "white");
-    printWithColor("y", "green");
-    printWithColor("/", "white");
-    printWithColor("n", "green");
-    printWithColor("): ", "white");
-
-    my $confirmInput = <STDIN>;
-    while($confirmInput!~m/^[y,n]/){
-        printWithColor("Invalid input. (y/n)\n","red");
-        printWithColor("(y/n) ", "white");
-        $confirmInput=<STDIN>;
-    }
-    chomp($confirmInput);
-    
-    if (Go::File::createDevice(\%deviceToAdd)) {
-        printWithColor("Device Added! Hit enter to continue.", "green");
-        <STDIN>;
-    } else {
-        printWithColor("Failed to add device! Hit enter to continue.", "red");
-        <STDIN>;        
+    printWithColor("Is this information correct?\n","white");
+    printWithColor("(y/n) ", "green");
+    my $choice = confirmChoice();
+    if ($choice eq "y"){
+        if (Go::File::createDevice(\%deviceToAdd)) {
+            print `clear`;
+            printWithColor("Device ", "white");
+            printWithColor("$deviceToAdd{'name'} ", "green");
+            printWithColor("added.\n");
+        } else {
+            print `clear`;
+            error("Failed to add $deviceToAdd{'name'}.\n");    
+        }
+    } elsif ($choice eq "n") {
+        print `clear`;
+        error("Did not create $deviceToAdd{'name'}.\n");
     }
     
     printMainMenu();
     exit;
 }
 
+# printAuthModeSelectionText()
+sub printAuthModeSelectionText {
+    printWithColor("Please select ","white");
+    printWithColor("1", "green"); 
+    printWithColor(" for password, ","white");
+    printWithColor("2", "green");
+    printWithColor(" for an existing SSH key.\n","white");
+}
+
+# printMenuHeader()
 sub printMenuHeader {
     my $title = shift;
     my $titleLength = length $title;
@@ -272,34 +349,33 @@ sub printMenuHeader {
     my @terminalSize = getTerminalSize();
     my $barLength = ($terminalSize[1] / 2) - ($titleLength / 2);
 
-    my $char = 1;
-    while ($char <= $barLength) {
-        $char++;
-        printWithColor("-","darkgray");
-    }
-
+    printBar($barLength);
     printWithColor("[ ", "darkgray");
     printWithColor($title,"cyan");
     printWithColor(" ]", "darkgray");
-
-    $char += $titleLength;
-    while ($char <= $terminalSize[1]) {
-        $char++;
-        printWithColor("-","darkgray");
-    }
+    my $barLengthToEndOfLine = $terminalSize[1] - ($barLength + $titleLength);
+    printBar($barLengthToEndOfLine);
     print "\n";
 }
 
+# printMenuBar()
 sub printMenuBar {
     my @terminalSize = getTerminalSize();
-    my $char = 1;
-    while ($char <= $terminalSize[1]) {
-        $char++;
-        printWithColor("-","darkgray");
-    }
+    printBar($terminalSize[1]);
     print "\n";
 }
 
+# printBar($length)
+sub printBar {
+    my $length = shift;
+    my $char = 1;
+    while ($char <= $length) {
+        $char++;
+        printWithColor("-","darkgray");
+    }
+}
+
+# printMenuOption()
 sub printMenuOption {
     my $optionNumber = shift;
     my $optionText = shift;
@@ -307,29 +383,10 @@ sub printMenuOption {
     printWithColor("$optionText\n", "green");
 }
 
-sub printMenuLogo {
-    my @terminalSize = getTerminalSize();
-    my $terminalWidth = $terminalSize[1];
-
-    my $version = Go::Update::getVersion();
-    printfWithColor($terminalWidth, "v $version", "darkgray");
-
-    print "\n";
-
-    my $centerLine = int($terminalWidth / 2) + 7;
-
-    printfWithColor($centerLine, ",---. ,---.\n", "green"); 
-    printfWithColor($centerLine, "|   | |   |\n", "yellow");    
-    printfWithColor($centerLine, "`---| `---'\n", "blue");  
-    printfWithColor($centerLine, "`---'      \n","lightred");    
-    print "\n";
-}
-
 # getSelectionInput();
 #
 # Returns:
 # $input - the number seletion of a device
-
 sub getSelectionInput {
     print "Selection: ";
     my $input=<STDIN>;
@@ -340,7 +397,10 @@ sub getSelectionInput {
     return $input;
 }
 
-
+# getValidatedInput($inputLabel, $validRegex)
+#
+# Returns:
+# $input - validated input
 sub getValidatedInput {
     my $inputLabel = shift;
     my $validRegex = shift;
@@ -356,12 +416,17 @@ sub getValidatedInput {
     return $input;
 }
 
-sub getTerminalSize {
-    my $sttySizeOutput = `stty size`;
-    my @terminalSize;
-    if ($sttySizeOutput =~ m/(\d+)\ (\d+)/){
-        $terminalSize[0] = $1;
-        $terminalSize[1] = $2;
+# confirmChoice()
+# 
+# Returns:
+# $choice - 'y' or 'n'
+sub confirmChoice {
+    my $choice = <STDIN>;
+    while($choice!~m/^[y,n]$/){
+        printWithColor("Invalid input: $choice","red");
+        printWithColor("(y/n) ", "green");
+        $choice=<STDIN>;
     }
-    return @terminalSize;
+    chomp($choice);
+    return $choice;
 }

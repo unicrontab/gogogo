@@ -19,13 +19,14 @@ my $gitArguments = "--git-dir=$mainDirectory/.git --work-tree=$mainDirectory";
 #
 # checks git for updates to your current branch
 sub checkForUpdates {
+    print `clear`;
+    printWithColor("Checking for updates...\n", "yellow");
+
     my $fetchOutput = `git $gitArguments fetch 2>&1`;
     if ($fetchOutput =~ m/Could not resolve host: (\S+)/) {
         error("Could not resolve $1\n");
     }  else {
-
-
-    my $gitStatusOutput = `git $gitArguments status`;
+        my $gitStatusOutput = `git $gitArguments status`;
 
         if ($gitStatusOutput =~ m/Your branch is behind/g) {
             printWithColor("Update available! Would you like to update? (y/n) ", "green");
@@ -39,7 +40,6 @@ sub checkForUpdates {
             if ($confirmInput =~ m/^y$/){
                 updateGo();
             }
-            
         } elsif ($gitStatusOutput =~ m/Your branch is up-to-date/) {
         } elsif ($gitStatusOutput =~ m/HEAD detached at (\S+)/) {
             error("You are not on a branch. You're on commit: $1 \n");
@@ -52,8 +52,9 @@ sub checkForUpdates {
 }
 
 sub updateGo {
-    my $gitUpdateOutput = `git --git-dir=$mainDirectory/.git --work-tree=$mainDirectory pull`;
+    my $gitUpdateOutput = `git $gitArguments pull`;
     print $gitUpdateOutput;
+    error("You must restart go to apply the update.\n");
 }
 
 sub getVersion {
@@ -61,3 +62,15 @@ sub getVersion {
     chomp($version);
     return $version;
 }
+
+sub getBranch {
+    my $branch =`git $gitArguments rev-parse --abbrev-ref HEAD`;
+    chomp($branch);
+    return $branch;
+}
+
+sub switchBranch {
+    my $newBranch = shift;
+    my $branchSwitch = `git $gitArguments checkout $newBranch 2>&1`;
+    return $branchSwitch;
+};

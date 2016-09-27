@@ -2,19 +2,18 @@
 use strict;
 use warnings;
 
+# Required to load custom libraries before compile
 use Cwd qw(abs_path);
 my $currentFile;
 my $mainDirectory;
-
-# Find and add the library to @INC
 BEGIN {
 	$currentFile = abs_path($0);
 	if ($currentFile =~ m/^(\S+)\/go\.pl/){
 	    $mainDirectory = $1;
 	};
 }
-
 use lib "$mainDirectory/lib";
+
 use Go::Menu;
 use Go::File;
 use Go::Term;
@@ -23,14 +22,12 @@ use Go::Update;
 use Go::Config;
 my %config = Go::Config::getConfig();
 
-
-
 # check if the config directories exist, create them if they don't
 Go::File::ensureDataDirectoriesExist();
 
+# if private key is gone, go through setup wizard
 if (! Go::File::checkForPrivateKey()) {
-	Go::Menu::printCertificateWizard();
-	Go::Menu::getUpdatePreferences();
+	Go::Menu::printSetupWizard();
 	%config = Go::Config::getConfig();
 }
 
@@ -40,9 +37,8 @@ my $numberOfMatchedDevices = scalar @initiallyMatchedDevices;
 
 # just type 'go'
 if ($numberOfSearchTerms == 0) {
+	print `clear`;
 	if ($config{'checkForUpdates'} eq "yes"){
-		print `clear`;
-		printWithColor("Checking for updates...\n", "yellow");
 		Go::Update::checkForUpdates();
 	}
 	Go::Menu::printMainMenu();
@@ -50,13 +46,13 @@ if ($numberOfSearchTerms == 0) {
 # search terms match *ONE* device
 } elsif ($numberOfMatchedDevices == 1) {
 	my %device = Go::Device::getDeviceInfo($initiallyMatchedDevices[0]);
+
 	Go::Device::connectToDevice(\%device);
 
 # search terms match *MULTIPLE* devices
 } elsif ($numberOfMatchedDevices > 1) {
-	Go::Menu::printDeviceSelectionMenu(\@initiallyMatchedDevices);
-	my $deviceSelection = Go::Menu::getSelectionInput() - 1;
-	my %device = Go::Device::getDeviceInfo($initiallyMatchedDevices[$deviceSelection]);
+	my %device = Go::Menu::printDeviceSelectionMenu(\@initiallyMatchedDevices);
+	
 	Go::Device::connectToDevice(\%device);
 
 # search terms match *ZERO* devices

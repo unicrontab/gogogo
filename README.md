@@ -3,8 +3,14 @@ A terminal based ssh login manager/automator.
 
 #### Getting Started with go:
 
-To use go with just `go` you will need to symlink **go.pl** to **go** and put the symlink in a directory that exists in your $PATH environment variable.
 `ln -s $PWD/go.pl /usr/local/bin/go`
+
+If you have Golang installed, you can use another command, like 'gogo':
+
+`ln -s $PWD/go.pl /usr/local/bin/gogo`
+
+
+To use go with just `go` you will need to symlink **go.pl** to **go** and put the symlink in a directory that exists in your $PATH environment variable.
 
 Then you can just run `go` to get to the main menu. Follow the instructions from there.
 

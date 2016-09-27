@@ -6,12 +6,9 @@ use warnings;
 require Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(printWithColor printfWithColor error);
+our @EXPORT = qw(printWithColor printfWithColor getTerminalSize error);
 
 # printWithColor($color);
-#
-# Sets the terminal output to a specific color
-
 sub printWithColor {
     my $stringToPrint = shift;
     my $colorChoice = shift;
@@ -38,7 +35,7 @@ sub printWithColor {
 
 }
 
-
+# printfWithColor
 sub printfWithColor {
     my $width = shift;
     $width += 7;
@@ -67,7 +64,22 @@ sub printfWithColor {
 
 }
 
+# error($errorMessage)
 sub error {
     my $errorMessage = shift;
     printWithColor($errorMessage,"red");
+}
+
+# getTerminalSize
+# 
+# Returns:
+# @terminalSize - [$height, $width]
+sub getTerminalSize {
+    my $sttySizeOutput = `stty size`;
+    my @terminalSize;
+    if ($sttySizeOutput =~ m/(\d+)\ (\d+)/){
+        $terminalSize[0] = $1;
+        $terminalSize[1] = $2;
+    }
+    return @terminalSize;
 }

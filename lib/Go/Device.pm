@@ -107,7 +107,7 @@ sub connectToDevice {
     my $response;
     my $sshCommand = "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 $deviceUsername\@$deviceIp";
     my $session = Expect->spawn($sshCommand) or die "Couldn't ssh to $deviceName\n";
-    printConnectionStatus("red");
+    printConnectionStatus("yellow");
 
     if ($authMode == 1) {
         printConnectionStatus("yellow");
@@ -128,7 +128,7 @@ sub connectToDevice {
 
 
     #match using regex, starting on the 3rd argument
-    $response = $session->expect(10,'-re',"assword:","\#","\>","\$","Network is unreachable");
+    $response = $session->expect(10,'-re',"assword:","\#","\>","\$","Network is unreachable","Permission denied");
     $temp=$session->exp_before();
 
     if ($response){
@@ -138,12 +138,15 @@ sub connectToDevice {
             exit;
         } elsif ($response >= 2 && $response <=4) {
             printConnectionStatus("green");
-        # TODO: Add sudo/enable autologin logic here by detecting prompt
-        } else {
-            printConnectionStatus("yellow");
-            printWithColor("\nConsider adding a specifc terminal handler for this prompt!","yellow"); 
-            #printWithColor("$response\n","yellow");
-        }
+        } elsif ($response == 5) {
+            printConnectionStatus("red");
+            error("\nNetwork Unreachable.\n");
+            exit;
+        } elsif ($response == 6) {
+            printConnectionStatus("red");
+            error("\nYour SSH Key was denied.\n");
+            exit;
+        } 
         print "\n";
 
         $session->send("\r");
