@@ -181,9 +181,7 @@ sub createPassword {
 sub encryptPassword {
     my $password = shift;
     my $passwordId = shift;
-    if (! -e "$deviceDataLocation/") {
-        `mkdir $deviceDataLocation`;
-    }
+    
     $password =~ s/\$/\\\$/g;
     $password =~ s/\`/\\\`/g;
 
