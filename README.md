@@ -19,9 +19,15 @@ Then you can just run `go` to get to the main menu. Follow the instructions from
 
 1. Fast Search and Connect: `go nginx prod`
 
+	![gousage](https://cloud.githubusercontent.com/assets/7220258/18885564/c1ace83a-84b1-11e6-985f-9d4f1ef7c20f.png)
+
+
 	This will find a filtered list of devices that match 'nginx' and 'prod' and allow you to select which one you want to SSH into. If only 1 device matches, it will automatically log you in.
 
 2. Add/Delete/List Devices: `go`
+
+	![gomenu](https://cloud.githubusercontent.com/assets/7220258/18885320/db3e0c6c-84b0-11e6-96c1-3b74f0c39713.png)
+
 
 	This will bring you to the main menu to add, delete, or list devices.
 
