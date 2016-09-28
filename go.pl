@@ -57,7 +57,7 @@ if ($numberOfSearchTerms == 0) {
 
 # search terms match *ZERO* devices
 } elsif ($numberOfMatchedDevices == 0) {
-	error("No match. Use 'go' to add devices.\n");
+	Go::Menu::printNoDeviceMenu();
 } 
 
 exit;
