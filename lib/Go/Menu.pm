@@ -288,6 +288,21 @@ sub getPasswordInput {
     return @passwords;
 }
 
+
+# printNoDeviceMenu()
+sub printNoDeviceMenu {
+
+    error("No device matched.\n");
+    printWithColor("Would you like to add a device?\n", "white");
+    printWithColor("(y/n) ", "green");
+    my $choice = confirmChoice();
+    if ($choice eq "y"){
+        printAddDeviceMenu();
+    } elsif ($choice eq "n") {
+        exit;
+    }
+}
+
 # printAddDeviceMenu()
 sub printAddDeviceMenu {
     my %deviceToAdd;
