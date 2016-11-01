@@ -108,11 +108,13 @@ sub connectToDevice {
     my $sshCommand = "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 $deviceUsername\@$deviceIp";
 
     my $session = Expect->spawn($sshCommand) or die "Couldn't ssh to $deviceName\n";
-    #Catch winch signal
+    # Set initial terminal size
     $session->slave->clone_winsize_from(\*STDIN);
+    # Catch winch signal (terminal resize events)
     $SIG{WINCH} = \&winch;
 
     sub winch {
+        no warnings;
         $session->slave->clone_winsize_from(\*STDIN);
         kill WINCH => $session->pid if $session->pid;
         $SIG{WINCH} = \&winch;
@@ -167,6 +169,9 @@ sub connectToDevice {
         error("\nConnection timeout when connecting to $deviceName @ $deviceIp\n");
     } 
 }
+
+
+
 
 # printConnectionStatus($status)
 #
