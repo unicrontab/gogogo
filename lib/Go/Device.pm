@@ -106,7 +106,18 @@ sub connectToDevice {
     my $temp;
     my $response;
     my $sshCommand = "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 $deviceUsername\@$deviceIp";
+
     my $session = Expect->spawn($sshCommand) or die "Couldn't ssh to $deviceName\n";
+    #Catch winch signal
+    $session->slave->clone_winsize_from(\*STDIN);
+    $SIG{WINCH} = \&winch;
+
+    sub winch {
+        $session->slave->clone_winsize_from(\*STDIN);
+        kill WINCH => $session->pid if $session->pid;
+        $SIG{WINCH} = \&winch;
+    }
+
     printConnectionStatus("yellow");
 
     if ($authMode == 1) {
